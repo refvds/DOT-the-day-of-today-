@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "day-today",
+  "version": "0.1.0",
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "content_scripts": [
+    {
+      "css": ["style.css"]
+    }
+  ]
+}
