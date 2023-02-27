@@ -7,7 +7,14 @@
   },
   "content_scripts": [
     {
-      "css": ["style.css"]
+      "matches": ["https://*/*"],
+      "css": ["style.css"],
+     
+      "js": ["content-scripts.js"]
     }
-  ]
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  }
 }
