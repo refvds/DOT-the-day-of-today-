@@ -3,34 +3,36 @@ export class INDXDB {
     constructor(nameDB, version) {
         this.nameDB = nameDB;
         this.version = version;
+        this.open()
     }
 
-     createDB =  () => {
-        return new Promise((res, rej) => {
-        this.dbOpenRequest =  indexedDB.open(this.nameDB, this.version);
-        this.dbOpenRequest.onerror = (err) => {
-            console.error(`DB doesn't open or create: ${err}`);
-        };
-        this.dbOpenRequest.onsuccess = (event) => {
-            this.db = event.target.result;
-            res(this.db)
-            console.log('DB has success');
-        }
-        this.dbOpenRequest.onupgradeneeded = (event) => {
-            this.db = event.target.result;
-            const objectStore = this.db.createObjectStore('wallpapersStore');
-            objectStore.transaction.oncomplete = () => {
-                console.log('Object store was created');
+     open() {
+        return new Promise(async(res, rej) => {
+            this.dbOpenRequest =  await indexedDB.open(this.nameDB, this.version);
+           
+            this.dbOpenRequest.onerror = (err) => {
+                console.error(`DB doesn't open or create: ${err}`);
+            };
+            this.dbOpenRequest.onsuccess = (event) => {
+                this.db = event.target.result;
+                res(this.db)
+                console.log('DB has success');
             }
-        }
-    
-            
-       })
+            this.dbOpenRequest.onupgradeneeded = (event) => {
+                this.db = event.target.result;
+                const objectStore = this.db.createObjectStore('wallpapersStore');
+                objectStore.transaction.oncomplete = () => {
+                    console.log('Object store was created');
+                }
+                res(db);
+            }
+        })
+       
     }
 
-    putData = async (db, data) => {
-        if (db) {
-            const transaction = await db.transaction('wallpapersStore', 'readwrite');
+    putData = async ( data) => {
+             const open = await this.open();
+            const transaction = await this.db.transaction('wallpapersStore', 'readwrite');
             const objectStore = transaction.objectStore('wallpapersStore', {
                 keyPath: 'id'
             })
@@ -57,12 +59,12 @@ export class INDXDB {
                     }    
                 });               
             });        
-        }
+        
     }
 
-    async getData(db) {
-        if (db) {
-            const transaction = await db.transaction('wallpapersStore','readonly')
+    async getData() {
+        const open = await this.open();
+            const transaction = await this.db.transaction('wallpapersStore','readonly')
             const objStore = transaction.objectStore('wallpapersStore');
     
             return new Promise((res, rej)=>{
@@ -74,25 +76,8 @@ export class INDXDB {
                 request.onerror = (err) => {
                     console.err(`something went wrong with get data ${err}`);
                 }
-              
-
-                // res(request)
-                // transaction.oncomplete = () => {
-                //     console.log('get complete')
-                //     res(transaction)
-                // }
-                // transaction.onerror = (err) => {
-                //     res({
-                //         message: 'no-data'
-                //     });
-                //     console.warn(err);
-                // }
-                // const request = objStore.getAll();
-                // request.onsuccess = (event) => {
-                 
-                // }
             });
             
-        }
+        
     }
 }

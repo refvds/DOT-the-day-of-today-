@@ -2,20 +2,22 @@ import { INDXDB } from './indxdb.js';
 import { env } from './envs.js';
 import { fetchedData } from './utilities.js';
 
-let DB = null; 
-let images = null;
+let DB = new INDXDB('wallpapers',1);; 
 
 chrome.runtime.onInstalled.addListener(async()=>{
     const request = await fetchedData(env.url,{headers: { Authorization: env.key }})
-    DB = new INDXDB('wallpapers',1);
-    const created = await DB.createDB();
-    const putted = await DB.putData(created, request);
-    const data = await DB.getData(created);
-    images = data;
+    const putted = await DB.putData(request);
+    
 });
 
 chrome.runtime.onMessage.addListener((request,sender, sendMessage) => {
     if (request.message === 'get-data') {
-        sendMessage(images)
+        const images = DB.getData()
+        images.then(image=>{
+            console.log(image)
+            sendMessage(image)  
+
+        })
+        return true;
     }
 })
